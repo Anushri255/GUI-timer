@@ -338,3 +338,34 @@ extendTimeLabel.place(x=180, y=totalTimeYvalue + 140)
 
 extendTaskButton = Button(win, font =('DS-Digital Bold',10), text='Extend', bd ='2',bg = '#D8BFD8', command = extendTask)
 extendTaskButton.place(x=380, y=totalTimeYvalue + 140)
+
+
+importCsvButton = Button(win, font =('DS-Digital Bold',10), text='Import csv', bd ='2',bg = '#FFC0CB',command=importCSV)
+importCsvButton.place(x=80, y=30)
+exportCsvButton = Button(win, font =('DS-Digital Bold',10), text='Export csv', bd ='2',bg = '#FFC0CB',command=exportCSV)
+exportCsvButton.place(x=180, y=30)
+exportStatsBtn = Button(win, font =('DS-Digital Bold',10), text='Export Statistics', bd ='2',bg = '#FFC0CB',command=exportStats)
+exportStatsBtn.place(x=280, y=30)
+
+
+timerSec = StringVar()
+totalseconds = Label(win, textvariable=timerSec, width = 2, font = 'Digital-7')
+totalseconds.place(x=320, y=totalTimeYvalue)
+timerSec.set('00')
+timerMins = StringVar()
+totalminutes = Label(win, textvariable = timerMins, width =2, font = 'Digital-7')
+totalminutes.place(x=280, y=totalTimeYvalue)
+timerMins.set('00')
+timerHrs= StringVar()
+totalhours = Label(win, textvariable = timerHrs, width =2, font = 'Digital-7')
+totalhours.place(x=242, y=totalTimeYvalue)
+timerHrs.set('00')
+
+progress = Progressbar(win, orient = HORIZONTAL,
+              length = 100, mode = 'determinate')
+progress.pack(pady = 10)
+progress.place(x=360, y= totalTimeYvalue+2)
+
+win.protocol("WM_DELETE_WINDOW", on_closing)
+
+win.mainloop()
