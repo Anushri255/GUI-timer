@@ -29,7 +29,6 @@ def skipFalse():
     global skip
     skip = False
 
-# The function starts the timer for the subtask passed in.
 def start(position, hours, minutes, seconds):
 
     global skip, extend
@@ -37,15 +36,14 @@ def start(position, hours, minutes, seconds):
     global running
     global now
 
-    skipTask = False            # Tracks whether the current task is skipped         
+    skipTask = False
     exit = False       
 
-    progress["value"] = 0       # Resets the progress bar to 0 
+    progress["value"] = 0       
 
-    # Convert the total time to seconds
     totalSecs = hours*3600 + minutes*60 + seconds
-    endTotalSecs = totalSecs    # Stores the initial total seconds.
-    endExtendSecs = 0           # Stores the total extended amount of seconds
+    endTotalSecs = totalSecs    
+    endExtendSecs = 0          
 
     while running == True and exit!= True and totalSecs >-1:
         while totalSecs > -1 and pause == False:
@@ -55,7 +53,6 @@ def start(position, hours, minutes, seconds):
                 exit = True
                 skipTask = True
 
-                # Calculates the amount of time spent for the subtask before it was skipped 
                 finalTotalSecs = endTotalSecs - totalSecs
                 fm = 0
                 fh = 0
@@ -68,27 +65,23 @@ def start(position, hours, minutes, seconds):
                 
                 fs = (finalTotalSecs % 3600) % 60
                 
-                # Updates the subtaskStatistics[] to include the actual time spent on the task
                 subtaskStatistics[position]["hours"] = fh
                 subtaskStatistics[position]["seconds"] = fs
                 subtaskStatistics[position]["minutes"] = fm
 
                 break
 
-            # Extends time for the current subtask  
             if extend == True:
                 try:
                     extendsec = int(extendSec.get())
                     extendMin = int(extendmins.get())
                     extendHrs = int(extendhrs.get())
 
-                    # Adds the extended seconds to the initial time
                     extendTotalSecs = extendHrs*3600 + extendMin*60 + extendsec
                     endExtendSecs += extendTotalSecs
 
                     newTotalSec = endTotalSecs + extendTotalSecs
                     
-                    # Update the progress bar to show the extended time
                     if now == True:
                         nowTotalSecs = totalSecs
                         progress_progress = 100 / newTotalSec * (endTotalSecs - nowTotalSecs) 
@@ -99,18 +92,45 @@ def start(position, hours, minutes, seconds):
                     extend = False
 
                 except:
-                    # Show error message when user enters non integers when extending hours, minutes, or seconds
                     errorMessage.configure(text="Error: All hours, minutes, and seconds should be integers! Please enter integers only and click extend button again!")
                     
-                    # Calls threading object to allow the Timer to work separately with 5 seconds before configuring
-                    # the error message.
                     threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
 
-                    # Set the extended seconds, minutes, and hours back to 0
                     extendSec.set('00')
                     extendmins.set('00')
                     extendhrs.set('00')
-   
+
+
+            m = totalSecs//60
+            s = totalSecs % 60
+            h = 0
+            
+            if m > 60:
+                h = m//60
+                m = m % 60
+
+            timerSec.set(s)
+            timerMins.set(m)
+            timerHrs.set(h)
+
+            if totalSecs == 0:
+                win.bell()
+                
+            if pause == False:
+                time.sleep(1)
+                totalSecs-=1
+
+                # Update progress bar
+                if endExtendSecs == 0:
+                    progress_bar(totalSecs, endTotalSecs)
+                else:    
+                    progress_bar(totalSecs, newTotalSec)
+            
+            win.update()
+
+        
+        win.update()
+    
     if skipTask != True:
 
         endTotal = endExtendSecs + endTotalSecs
@@ -133,7 +153,201 @@ def start(position, hours, minutes, seconds):
     
     extended = False
 
+    
+# Udpates the progress bar to show the current time remaining
+def progress_bar(totalSecs, endTotalSecs):
+    if totalSecs>-1:
+        progress['value'] += 100/endTotalSecs
 
+# Pause Button
+def pause_f():
+    global timerStarted
+    if timerStarted == True:
+        global pause
+
+        if pause == True:
+            messagebox.showerror("Error", "You have already clicked pause!")
+            
+        if len(subtasks) == 0:
+            messagebox.showinfo("Alert", "Please add tasks and start the timer first!")
+
+        pause = True
+    else:
+        messagebox.showwarning("Warning", "You can only press this button when the timer has started!")
+
+
+# Resume the countdown
+def resume():
+    global timerStarted
+
+    if timerStarted == True:
+        global pause
+
+        # Show messgae when user accidentally clicks resume after they already clicked resume
+        if pause == False:
+            errorMessage.configure(text="Error: You have already clicked resume!")
+
+            # This calls threading object to allow the Timer to work separately with 5 seconds before configuring
+            # the error message.
+            threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+            
+        if len(subtasks) == 0:
+            messagebox.showinfo("Alert", "Please add tasks and start the timer first!")
+
+        pause = False
+    else:
+        messagebox.showwarning("Warning", "You can only press this button when the timer has started!")
+
+
+def startEachSubtask():
+    global totalTimeYvalue
+    global timerStarted
+
+    try:
+        if len(subtasks) != 0:
+            timerStarted = True
+            position = 0 # Stores the position of the subtask which the user wants to start the timer from 
+     
+            for subtask in subtasks:
+                
+                l = Label(win,text = "Task in progress: " + subtask["subtask"], font = 'Digital-7 14')
+                l.configure(bg ="light blue")
+                
+                l.place(x=5, y=totalTimeYvalue)
+                start(position, subtask["hours"], subtask["minutes"], subtask["seconds"])
+                position += 1
+
+                # Reset progress bar
+                progress['value'] = 0
+                
+                # Update the GUI 
+                timerSec.set('00')
+                timerMins.set('00')
+                timerHrs.set('00')
+            
+            timerStarted = False
+        else:
+            messagebox.showerror("Error", "Please add subtasks before starting the timer")
+    
+    except:
+        return
+
+def addSubtask():
+
+    global entryYvalue
+    global timerYvalue
+    global hrs, sec, mins,subtaskName
+    global totalTimeYvalue
+    global importedValue
+    global timerStarted
+    
+    duplicate = False
+
+    if timerStarted != True:
+        for num1 in subtasks:
+            if num1['subtask'] == str(subtaskName.get()):
+                duplicate = True
+        
+        if duplicate != True:
+            try:
+                if int(hrs.get()) == 0 and int(mins.get()) == 0 and int(sec.get()) == 0 and importedValue == False:
+                    messagebox.showerror("Error!", "Subtask cannot have a total time of 0!")
+                elif str(subtaskName.get().strip()) == '' and importedValue == False:
+                    messagebox.showerror("Error!", "Subtask name field cannot be empty!")
+                else:
+                    if not importedValue:
+                        h = int(hrs.get())
+                        m = int(mins.get())
+                        s = int(sec.get())
+                        subtask = str(subtaskName.get())
+                        subtasks.append({"subtask": subtask,"hours": h, "minutes": m,"seconds":s})
+                        subtaskStatistics.append({"subtask": subtask,"hours": h, "minutes": m,"seconds":s})
+                        startName = str(subtaskName.get())    # Stores the subtask name into the variable 'startName'
+                                                            
+                        
+                        startHere = Button(win, font=('DS-Digital Bold', 7), text='Start Timer Here', bd='2', bg='#FFFFE0', command=lambda: startTimerPosition(startName))
+                        startHere.place(x=150, y=entryYvalue)
+
+                    else:
+                        addSubtaskButton.configure(text="Add Subtask")
+                        importedValue = False
+
+                    entryYvalue += 20                          
+                    timerYvalue += 20                                
+                    totalTimeYvalue += 20
+
+                    sec = StringVar()
+                    Entry(win, textvariable=sec, width = 2, font = 'Digital-7').place(x=320, y=entryYvalue)
+                    sec.set('00')
+                    mins= StringVar()
+                    Entry(win, textvariable = mins, width =2, font = 'Digital-7').place(x=280, y=entryYvalue)
+                    mins.set('00')
+                    hrs= StringVar()
+                    Entry(win, textvariable = hrs, width =2, font = 'Digital-7').place(x=242, y=entryYvalue)
+                    hrs.set('00')
+                    border_frame = Frame(win, bd=1, relief=SOLID)
+                    subtaskName = StringVar()
+                    subtaskName.set('')
+                    Entry(win, textvariable=subtaskName, width=20, borderwidth=1, relief='solid').place(x=10, y=entryYvalue)
+
+
+                    addSubtaskButton.place(y=entryYvalue) 
+                    startTimerButton.place(y=timerYvalue+90) 
+
+                    totalseconds.place(y=totalTimeYvalue)
+                    totalminutes.place(y=totalTimeYvalue)
+                    totalhours.place(y=totalTimeYvalue)
+
+                    skip.place(y=timerYvalue + 130)
+
+                    extendTaskButton.place(y=totalTimeYvalue + 140)
+                    extendedSecs.place(y=totalTimeYvalue + 140)
+                    extendedMins.place(y=totalTimeYvalue + 140)
+                    extendedHours.place(y=totalTimeYvalue + 140)
+                    extendTimeLabel.place(y=totalTimeYvalue + 140)
+
+                    pauseButton.place(y=timerYvalue + 130)
+                    resumeButton.place(y=timerYvalue + 130)
+                    progress.place(y= totalTimeYvalue+2)
+
+                    
+            except ValueError:
+                messagebox.showerror("Error!", "The value input in the time field is not an integer!")
+        else:
+            messagebox.showerror("Error", "This subtask name already exists!")
+            duplicate = False
+    else:
+        errorMessage.configure(text="Error: Please wait until the timer has finished")
+        threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+
+def exportCSV():
+    global timerStarted
+
+    try:
+        if timerStarted != True:
+            taskCount = 0  # Stores the number of rows of data.
+                            
+            exportFileName = filedialog.asksaveasfilename(defaultextension=".csv")
+
+            with open(f'{exportFileName}', 'w', newline='') as csvfile:
+
+                timerColumns = ['subtask', 'hours', 'minutes', 'seconds']
+                
+                thewriter = csv.DictWriter(csvfile, fieldnames=timerColumns)
+
+                thewriter.writeheader()                                             
+                                                                                    
+
+                for task in subtasks:
+                    
+                    taskCount += 1 # Incremental variable to keep track of rows.
+                
+                    thewriter.writerow({'subtask': task["subtask"], 'hours': task["hours"], 'minutes':task["minutes"], 'seconds':task["seconds"]})
+        else:
+            errorMessage.configure(text="Error: Please wait until the timer has finished")
+            threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+    except:
+        messagebox.showerror("Error", "Please enter file name and click save to export a csv file.")
 
 def importCSV():
 
@@ -269,8 +483,35 @@ def importCSV():
     else:
         errorMessage.configure(text="Error: Please wait until the timer has finished")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+    
+def finishedImport():
+    global importedValue
+    importedValue = True
+    addSubtaskButton.configure(text="Add more tasks?")
 
 
+def skipTask():
+    global timerStarted
+    if timerStarted == True:
+        global skip
+        skip = True
+        if len(subtasks) == 0:
+            messagebox.showinfo("Alert", "Please add tasks and start the timer first!")
+    else:
+        messagebox.showwarning("Warning", "You can only press this button when the timer has started!")
+
+
+def extendTask():
+    global timerStarted
+    global now
+    if timerStarted == True:
+        global extend
+        extend = True
+        now = True
+        if len(subtasks) == 0:
+            messagebox.showinfo("Alert", "Please start the timer first before extending a task!")
+    else:
+        messagebox.showwarning("Warning", "You can only press this button when the timer has started!")
 
 
 def exportStats():
@@ -295,8 +536,6 @@ def exportStats():
 
     except:
         messagebox.showerror("Error", "Please enter file name and click save to export a file with statistics.")
-
-
 
 
 # This function will start the timer from the subtask defined by the user
@@ -333,8 +572,6 @@ def startTimerPosition(name):
     else:
         errorMessage.configure(text="Error: Please wait until the timer has finished adding")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
-
-
 
 # Create the GUI 
 win = Tk()
