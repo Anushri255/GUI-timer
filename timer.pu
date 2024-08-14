@@ -1,0 +1,30 @@
+from tkinter import *
+import tkinter as tk
+from tkinter import messagebox
+import csv
+from tkinter import filedialog
+import threading
+import time
+from tkinter.ttk import Progressbar
+
+importedValue = False
+subtasks = []
+extend = False
+skip = False
+running = True
+pause = False
+timerStarted = False
+subtaskStatistics = []
+extended = False
+
+entryYvalue = 130
+timerYvalue = 165
+totalTimeYvalue = 200
+
+def on_closing():
+    if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        win.destroy()
+
+def skipFalse():
+    global skip
+    skip = False
