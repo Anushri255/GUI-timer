@@ -214,3 +214,30 @@ def importCSV():
     else:
         print(text="Error: Please wait until the timer has finished")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+
+
+
+
+def exportStats():
+    try:
+        global timerStarted
+
+        if timerStarted != True:
+            exportFileName = input(defaultextension=".doc")
+            
+            with open(f'{exportFileName}', 'w') as f:
+                f.write("{:<20} {:<20} {:<23}\n".format("Task Name", "Planned Time", "Actual Time Spent"))
+                f.write("\n")
+
+                for task, stats in zip(subtasks, subtaskStatistics):
+                    f.write("{:<23} {:02d}:{:02d}:{:02d} {:>10} {:02d}:{:02d}:{:02d}\n".format(
+                        task["subtask"], task["hours"], task["minutes"], task["seconds"], "",
+                        stats["hours"], stats["minutes"], stats["seconds"]
+                    ))
+        else:
+            print("Error: Please wait until the timer has finished")
+            threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+
+    except:
+        print("Error Please enter file name and click save to export a file with statistics.")
+
