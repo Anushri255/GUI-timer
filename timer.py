@@ -241,3 +241,33 @@ def exportStats():
     except:
         print("Error Please enter file name and click save to export a file with statistics.")
 
+
+
+
+# This function will start the timer from the subtask defined by the user
+def startTimerPosition(name):
+    global totalTimeYvalue
+    global timerStarted
+
+    if timerStarted == False:
+        index = 0  # Stores the position of the subtask 
+        
+        # Loop to find the position of the subtask defined by the user
+        for num in subtasks:
+            if num["subtask"] == name:
+                break
+            index += 1
+
+        timerStarted = True
+
+        # This for loop iterates through the subtasks list from the position that the user prefers to
+        # start the timer from.
+        for i, subtask in enumerate(subtasks):
+            if i >= index:
+                start(i, subtask["hours"], subtask["minutes"], subtask["seconds"])
+                
+     
+        timerStarted = False
+    else:
+        print("Error: Please wait until the timer has finished adding")
+        threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
