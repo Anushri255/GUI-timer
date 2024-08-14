@@ -132,3 +132,85 @@ def start(position, hours, minutes, seconds):
         subtaskStatistics[position]["minutes"] = tm
     
     extended = False
+
+
+
+def importCSV():
+
+    global entryYvalue
+    global timerYvalue
+    global totalTimeYvalue
+    global timerStarted
+    duplicate = False
+
+    if timerStarted != True:
+        try:
+            userChoiceFile = input()
+
+            importedFile = userChoiceFile
+
+            tasks = []
+            rows = []
+
+            newSubtask = []
+
+            if userChoiceFile.endswith(".csv"):
+                importedFile = userChoiceFile
+
+                tasks = []
+                rows = []
+
+                newSubtask = [] 
+
+                with open(importedFile, 'r') as csvfile:
+
+                    csvreader = csv.reader(csvfile)
+
+                    tasks = next(csvreader)
+
+                    try:
+                        for row in csvreader:
+                                newSubtask.append({
+                                    "subtask": row[0],
+                                    "hours": int(row[1]),
+                                    "minutes": int(row[2]),
+                                    "seconds": int(row[3])
+                                })
+                    except Exception:
+                        print("Error", "Uh oh! Looks like the file you were trying to import was formatted incorrectly.\nPlease ensure that it imports the correct data types.")
+                        return
+                    
+                    for num1 in subtasks:
+                        for num2 in newSubtask:
+                            if num1['subtask'] == num2['subtask']:
+                                duplicate = True
+                                break
+                    
+                    for i, num1 in enumerate(newSubtask):
+                        for num2 in newSubtask[i+1:]:
+                            if num1['subtask'] == num2['subtask']:
+                                duplicate = True
+                                break
+                    
+                    if duplicate == True:
+                        print("Error", "The name of the subtask in that file already exists!")
+                        duplicate = False
+                        return
+                    
+                    for num in newSubtask:
+                        subtasks.append(num)
+
+                # Print all the content
+                for row in rows:
+                    for col in row:
+                        print("%10s" % col, end=" "),
+                    print('\n')
+
+                finishedImport()
+            else:
+                print("Error", "The file you are trying to import is not a CSV file!")
+        except:
+            print("Unknown Error", "Please try to import again")
+    else:
+        print(text="Error: Please wait until the timer has finished")
+        threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
