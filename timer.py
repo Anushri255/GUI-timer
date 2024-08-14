@@ -145,27 +145,33 @@ def importCSV():
 
     if timerStarted != True:
         try:
-            userChoiceFile = input()
+            userChoiceFile = filedialog.askopenfilename()
 
             importedFile = userChoiceFile
 
+            # Initialize headings and rows list
             tasks = []
             rows = []
 
+            # Creates a new list of all the tasks imported
             newSubtask = []
 
             if userChoiceFile.endswith(".csv"):
                 importedFile = userChoiceFile
 
+                # Initialize headings and rows list
                 tasks = []
                 rows = []
 
-                newSubtask = [] 
+                newSubtask = [] # Creates a new list of all the tasks imported
 
+                # Read csv file
                 with open(importedFile, 'r') as csvfile:
 
+                    # Create a csv reader object
                     csvreader = csv.reader(csvfile)
 
+                    # Extract field names through first row
                     tasks = next(csvreader)
 
                     try:
@@ -177,7 +183,7 @@ def importCSV():
                                     "seconds": int(row[3])
                                 })
                     except Exception:
-                        print("Error", "Uh oh! Looks like the file you were trying to import was formatted incorrectly.\nPlease ensure that it imports the correct data types.")
+                        messagebox.showerror("Error", "Uh oh! Looks like the file you were trying to import was formatted incorrectly.\nPlease ensure that it imports the correct data types.")
                         return
                     
                     for num1 in subtasks:
@@ -193,7 +199,7 @@ def importCSV():
                                 break
                     
                     if duplicate == True:
-                        print("Error", "The name of the subtask in that file already exists!")
+                        messagebox.showerror("Error", "The name of the subtask in that file already exists!")
                         duplicate = False
                         return
                     
@@ -206,13 +212,62 @@ def importCSV():
                         print("%10s" % col, end=" "),
                     print('\n')
 
-                finishedImport()
+
+                # Iterates through a {} containing subtasks imported from another CSV file
+                for num in newSubtask:
+
+                    # Creates Entry Widgets for hour, minute, and second 
+                    sec = StringVar()
+                    Entry(win, textvariable=sec, width = 2, font = 'Digital-7').place(x=320, y=entryYvalue)
+                    sec.set(num["seconds"])
+                    mins= StringVar()
+                    Entry(win, textvariable = mins, width =2, font = 'Digital-7').place(x=280, y=entryYvalue)
+                    mins.set(num["minutes"])
+                    hrs= StringVar()
+                    Entry(win, textvariable = hrs, width =2, font = 'Digital-7').place(x=242, y=entryYvalue)
+                    hrs.set(num["hours"])
+                    border_frame = Frame(win, bd=1, relief=SOLID)
+                    subtaskName = StringVar()
+                    subtaskName.set(num["subtask"])
+                    subtaskName_entry = Entry(win, textvariable=subtaskName, width=20, borderwidth=1, relief='solid')
+                    subtaskName_entry.place(x=10, y=entryYvalue)
+
+                    #This stores the subtask name into the variable 'startName'
+                    startName = str(num['subtask'])    
+                                                            
+                    # creates a button to allow users to start the timer from a specific sub task
+                    startHere = Button(win, font=('DS-Digital Bold', 7), text='Start Timer Here', bd='2', bg='#FFFFE0', command=lambda startName=startName: startTimerPosition(startName))
+                    startHere.place(x=150, y=entryYvalue)
+
+                    # Changes the y coordinate to format the GUI
+                    entryYvalue += 20      
+                    timerYvalue += 20      
+                    totalTimeYvalue += 20  
+                    addSubtaskButton.place(x=350, y=entryYvalue)  
+                    startTimerButton.place(y=timerYvalue+90)
+                    
+                    totalseconds.place(y=totalTimeYvalue)
+                    totalminutes.place(y=totalTimeYvalue)
+                    totalhours.place(y=totalTimeYvalue)
+                    skip.place(y=timerYvalue + 130)
+                    resumeButton.place(y=timerYvalue + 130)
+                    pauseButton.place(y=timerYvalue + 130)
+                    
+                    extendTaskButton.place(y=totalTimeYvalue + 140)
+                    extendedSecs.place(y=totalTimeYvalue + 140)
+                    extendedMins.place( y=totalTimeYvalue + 140)
+                    extendedHours.place(y=totalTimeYvalue + 140)
+                    extendTimeLabel.place(y=totalTimeYvalue + 140)
+                    progress.place(y= totalTimeYvalue+2)
+
+
+                    finishedImport()
             else:
-                print("Error", "The file you are trying to import is not a CSV file!")
+                messagebox.showerror("Error", "The file you are trying to import is not a CSV file!")
         except:
-            print("Unknown Error", "Please try to import again")
+            messagebox.showerror("Unknown Error", "Please try to import again")
     else:
-        print(text="Error: Please wait until the timer has finished")
+        errorMessage.configure(text="Error: Please wait until the timer has finished")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
 
 
@@ -223,7 +278,7 @@ def exportStats():
         global timerStarted
 
         if timerStarted != True:
-            exportFileName = input(defaultextension=".doc")
+            exportFileName = filedialog.asksaveasfilename(defaultextension=".doc")
             
             with open(f'{exportFileName}', 'w') as f:
                 f.write("{:<20} {:<20} {:<23}\n".format("Task Name", "Planned Time", "Actual Time Spent"))
@@ -235,11 +290,11 @@ def exportStats():
                         stats["hours"], stats["minutes"], stats["seconds"]
                     ))
         else:
-            print("Error: Please wait until the timer has finished")
+            errorMessage.configure(text="Error: Please wait until the timer has finished")
             threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
 
     except:
-        print("Error Please enter file name and click save to export a file with statistics.")
+        messagebox.showerror("Error", "Please enter file name and click save to export a file with statistics.")
 
 
 
@@ -260,16 +315,23 @@ def startTimerPosition(name):
 
         timerStarted = True
 
-        # This for loop iterates through the subtasks list from the position that the user prefers to
-        # start the timer from.
+
+        l = Label(win,text = "", bg="light blue", font = 'Digital-7')
         for i, subtask in enumerate(subtasks):
             if i >= index:
+                l.configure(text = "Task in progress: " + subtask["subtask"])
+                l.place(x=120, y=totalTimeYvalue+40)
                 start(i, subtask["hours"], subtask["minutes"], subtask["seconds"])
                 
-     
+                # Update the GUI
+                timerSec.set('00')
+                timerMins.set('00')
+                timerHrs.set('00')
+        
         timerStarted = False
+        l.configure(text="")
     else:
-        print("Error: Please wait until the timer has finished adding")
+        errorMessage.configure(text="Error: Please wait until the timer has finished adding")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
 
 
