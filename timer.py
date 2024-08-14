@@ -304,3 +304,37 @@ border_frame = Frame(win, bd=1, relief=SOLID)
 subtaskName = StringVar()
 subtaskName.set('')
 Entry(win, textvariable=subtaskName, width=20, borderwidth=1, relief='solid').place(x=10, y=entryYvalue)
+
+
+addSubtaskButton = Button(win, font =('DS-Digital Bold',10), text='Add Subtask', bd ='2',bg = '#98FB98',command=addSubtask)
+addSubtaskButton.place(x=350, y=entryYvalue)
+
+pauseButton = Button(win, font =('DS-Digital Bold',10), text='Pause Timer', bd ='2',bg = '#D8BFD8',command=pause_f)
+pauseButton.place(x=260, y=timerYvalue + 130)
+
+resumeButton = Button(win, font =('DS-Digital Bold',10), text='Resume Timer', bd ='2',bg = '#D8BFD8',command=resume)
+resumeButton.place(x=350, y=timerYvalue + 130)
+
+skip = Button(win, font =('DS-Digital Bold',10), text='Skip Task', bd ='2',bg = '#D8BFD8',command = skipTask)
+skip.place(x=180, y=timerYvalue + 130)
+
+extendSec = StringVar()
+extendedSecs = Entry(win, textvariable=extendSec, width = 2, font = 'Digital-7')
+extendSec.set('00')
+extendedSecs.place(x=350, y=totalTimeYvalue + 140)
+
+extendmins= StringVar()
+extendedMins = Entry(win, textvariable = extendmins, width =2, font = 'Digital-7')
+extendmins.set('00')
+extendedMins.place(x=320, y=totalTimeYvalue + 140)
+
+extendhrs= StringVar()
+extendedHours = Entry(win, textvariable = extendhrs, width =2, font = 'Digital-7')
+extendhrs.set('00')
+extendedHours.place(x=290, y=totalTimeYvalue + 140)
+
+extendTimeLabel = Label(win, text = ' Extend Task:', bg='light blue',font = 'Digital-7 12')
+extendTimeLabel.place(x=180, y=totalTimeYvalue + 140)
+
+extendTaskButton = Button(win, font =('DS-Digital Bold',10), text='Extend', bd ='2',bg = '#D8BFD8', command = extendTask)
+extendTaskButton.place(x=380, y=totalTimeYvalue + 140)
