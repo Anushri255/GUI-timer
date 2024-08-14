@@ -271,3 +271,36 @@ def startTimerPosition(name):
     else:
         print("Error: Please wait until the timer has finished adding")
         threading.Timer(5.0, lambda: errorMessage.config(text="")).start()
+
+
+
+# Create the GUI 
+win = Tk()
+win.geometry('700x400')
+win.config(bg='light blue')
+win.resizable(False, True)
+
+# Create Label Widget to display an error message to the user.
+errorMessage = Label(win, text="", bg="light blue", fg="red", font=('Digital-7', 10))
+errorMessage.place(x=10, y=5)
+
+Label(win, font =('DS-Digital Bold',18), text = 'Countdown Timer',bg='#D3D3D3').place(x=105,y=75)
+
+# Assigned button widget to a variable for easier y-value modification in other function 
+startTimerButton = Button(win, font =('DS-Digital Bold',10), text='Start Timer', bd ='2',bg = '#98FB98',command=startEachSubtask)
+startTimerButton.place(x=260, y=timerYvalue + 90)
+
+#Create Entry Widgets for hours, mins and secs
+sec = StringVar()
+Entry(win, textvariable=sec, width = 2, font = 'Digital-7').place(x=320, y=entryYvalue)
+sec.set('00')
+mins= StringVar()
+Entry(win, textvariable = mins, width =2, font = 'Digital-7').place(x=280, y=entryYvalue)
+mins.set('00')
+hrs= StringVar()
+Entry(win, textvariable = hrs, width =2, font = 'Digital-7').place(x=242, y=entryYvalue)
+hrs.set('00')
+border_frame = Frame(win, bd=1, relief=SOLID)
+subtaskName = StringVar()
+subtaskName.set('')
+Entry(win, textvariable=subtaskName, width=20, borderwidth=1, relief='solid').place(x=10, y=entryYvalue)
