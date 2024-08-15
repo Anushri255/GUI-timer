@@ -13,9 +13,5 @@ A simple timer program that allows users to set a countdown for a specified dura
 
 ## Installation
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/Anushri255/gui-timer.git
-   ```
-2. **Navigate** to `timer.py` and open it.
+1. **Download Timer.exe**
+   Download Timer.exe and run it to play the game!
